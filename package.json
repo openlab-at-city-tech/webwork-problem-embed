@@ -1,0 +1,29 @@
+{
+  "name": "webwork-problem-embed",
+  "version": "1.0.0",
+  "description": "Add support for WeBWorK problem embed",
+  "main": "index.js",
+  "scripts": {
+    "start": "wp-scripts start block/src/index.js --output-path=block/build",
+    "build": "wp-scripts build block/src/index.js --output-path=block/build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openlab-at-city-tech/webwork-problem-embed.git"
+  },
+  "keywords": [
+    "webwork",
+    "problem",
+    "embed",
+    "renderer"
+  ],
+  "author": "Boris Kuzmanov",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/openlab-at-city-tech/webwork-problem-embed/issues"
+  },
+  "homepage": "https://github.com/openlab-at-city-tech/webwork-problem-embed#readme",
+  "devDependencies": {
+    "@wordpress/scripts": "^26.1.0"
+  }
+}
