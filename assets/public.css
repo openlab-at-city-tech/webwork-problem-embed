@@ -1,0 +1,19 @@
+.wwpe-problem-content-button {
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.wwpe-problem-content-button > button {
+    padding: 8px 16px;
+    border-radius: 3px;
+    color: #fff;
+    background-color: #003388;
+    border: 0;
+}
+
+.wwpe-problem-content-button > button:hover,
+.wwpe-problem-content-button > button:focus {
+    background-color: #000688;
+    color: #fff;
+    cursor: pointer;
+}
