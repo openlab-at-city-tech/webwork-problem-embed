@@ -74,9 +74,14 @@ function wwpe_block_init() {
     wp_register_script(
         'wwpe-public',
         plugins_url( '/assets/public.js', __FILE__ ),
-        array( 'iframe-resizer'),
+        array( 'jquery', 'iframe-resizer'),
         true
     );
+
+    wp_localize_script( 'wwpe-public', 'wwpe', array(
+        'endpoint_url'  => wwpe_get_endpoint_url(),
+        'ajax_url'      => admin_url( 'admin-ajax.php' )
+    ));
 
     wp_enqueue_script( 'wwpe-public' );
 }

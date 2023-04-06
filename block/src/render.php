@@ -3,13 +3,13 @@
 function wwpe_block_render( $atts ) {
     ob_start();
 
-    $helper = new WWPE_Helpers();
+    global $wwpe_helper;
 
     $problemId = isset( $atts['problemId'] ) && ! empty( $atts['problemId'] ) ? $atts['problemId'] : null;
-    $seed = isset( $atts['seed'] ) && ! empty( $atts['seed'] ) && is_numeric( $atts['seed'] ) ? intval( $atts['seed'] ) : $helper->wwpe_get_random_problem_seed();
+    $seed = isset( $atts['seed'] ) && ! empty( $atts['seed'] ) && is_numeric( $atts['seed'] ) ? intval( $atts['seed'] ) : $wwpe_helper->wwpe_get_random_problem_seed();
     $showButton = isset( $atts['showRandomSeedButton'] ) && ! empty( $atts['showRandomSeedButton']) ? $atts['showRandomSeedButton'] : false;
 
-    $response = $helper->wwpe_get_problem_render_html( $problemId, $seed );
+    $response = $wwpe_helper->wwpe_get_problem_render_html( $problemId, $seed );
     ?>
     <div class="wwpe-problem-wrapper">
         <?php if( $response == null ) : ?>

@@ -6,6 +6,9 @@ class WWPE_Helpers {
 
     function __construct() {
         $this->endpoint_url = wwpe_get_endpoint_url();
+
+        add_action( 'wp_ajax_wwpe_get_problem_render_html', array( $this, 'wwpe_ajaxget_problem_render_html' ) );
+        add_action( 'wp_ajax_nopriv_wwpe_get_problem_render_html', array( $this, 'wwpe_ajaxget_problem_render_html' ) );
     }
 
     /**
@@ -62,9 +65,7 @@ class WWPE_Helpers {
         // Generate problem source code
         $problemSource = $this->wwpe_generate_problem_source( $problem_content );
 
-        $url = $this->endpoint_url;
-
-        $response = wp_remote_post( $url, array(
+        $response = wp_remote_post( $this->endpoint_url, array(
             'method'    => 'POST',
             'body'  => [
                 'problemSeed'       => $seed,
@@ -86,9 +87,50 @@ class WWPE_Helpers {
     }
 
     /**
+     * AJAX method for getting a new problem html with random seed number.
+     */
+    function wwpe_ajaxget_problem_render_html() {
+        // Check if problem source is provided
+        if( ! isset( $_POST['problem_source'] ) || empty( $_POST['problem_source'] ) ) {
+            wp_send_json_error( 'Missing problem source.', 500 );
+            die();
+        }
+
+        // Get random seed number
+        $seed = $this->wwpe_get_random_problem_seed();
+        
+        // Get current problem source
+        $problem_source = $_POST['problem_source'];
+
+        $response = wp_remote_post( $this->endpoint_url, array(
+            'method'    => 'POST',
+            'body'      => array(
+                'problemSeed'   => $seed,
+                'format'        => 'html',
+                'outputFormat'  => 'single',
+                'problemSource' => $problem_source
+            )
+        ) );
+
+        if( ! is_wp_error( $response ) ) {
+            wp_send_json( array(
+                'success'       => true,
+                'problemSource' => $problem_source,
+                'problemSeed'   => $seed,
+                'problemHtml'   => wp_remote_retrieve_body( $response )
+            ) );
+        } else {
+            wp_send_json( $response->get_error_message(), 500 );
+        }
+
+    }
+
+    /**
      * Generate random problem seed number between 0 and 9999
      */
     function wwpe_get_random_problem_seed() {
         return rand(0, 9999);
     }
 }
+
+$wwpe_helper = new WWPE_Helpers();
