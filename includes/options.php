@@ -47,7 +47,25 @@ function wwpe_plugin_options_render() {
  * Validate Endpoint URL value.
  */
 function wwpe_endpoint_validate( $value ) {
-    // TODO: Implement validation
+    $response = wp_remote_post( $value, array(
+        'method'    => 'POST',
+        'body'      => array(
+            'problemSeed'   => 1234,
+            'format'        => 'html',
+            'outputFormat'  => 'single',
+            'problemSource' => wwpe_get_test_problem_source()
+        ),
+        'data_format'   => 'body'
+    ) );
+
+    $status_code = intval( wp_remote_retrieve_response_code( $response ) );
+
+    if( $status_code != 200 ) {
+        $message = sprintf( __( 'WeBWorK Problem Endpoint is not valid (%s). Reverted to previous value.', 'wwpe' ), $value );
+        add_settings_error( 'wwpe_messages', 'wwpe_message', $message );
+        return wwpe_get_endpoint_url();
+    }
+
     return $value;
 }
 
@@ -56,4 +74,11 @@ function wwpe_endpoint_validate( $value ) {
  */
 function wwpe_get_endpoint_url() {
     return defined( 'WWPE_ENDPOINT_URL' ) ? WWPE_ENDPOINT_URL : get_option( 'wwpe_endpoint' );
+}
+
+/**
+ * WeBWorK test problem source
+ */
+function wwpe_get_test_problem_source() {
+    return 'IyNERVNDUklQVElPTgojIyBUYWdnZWQgYnkgampoMmIKCiMjIERCc3ViamVjdChXZUJXb3JLKQojIyBEQmNoYXB0ZXIoV2VCV29ySyB0dXRvcmlhbCkKIyMgREJzZWN0aW9uKE1BQSB0dXRvcmlhbCkKIyMgRGF0ZSg4LzMwLzA3KQojIyBTdGF0aWMoMSkKIyMgS0VZV09SRFMoJ3NhbXBsZScpCgpET0NVTUVOVCgpOyAgICAgICAKbG9hZE1hY3JvcygKICAiUEdzdGFuZGFyZC5wbCIsCiAgIlBHY2hvaWNlbWFjcm9zLnBsIiwKICAiUEdjb3Vyc2UucGwiCik7CiAgICAgICAgICAgCkJFR0lOX1RFWFQKQ29tcGxldGUgdGhlIHNlbnRlbmNlOiAkUEFSClx7IGFuc19ydWxlKDIwKSBcfSAgd29ybGQhCkVORF9URVhUCgpBTlMoc3RyX2NtcCggIkhlbGxvIiApICk7ICAjIGhlcmUgaXMgdGhlIGFuc3dlciwgYSBzdHJpbmcuCgoKCgpFTkRET0NVTUVOVCgpOyAKICAgCg==';
 }
