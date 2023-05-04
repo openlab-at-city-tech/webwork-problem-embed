@@ -26,7 +26,7 @@ function wwpe_block_render( $atts ) {
             <input type="hidden" id="problemId" value="<?php echo $problemId; ?>" />
             <input type="hidden" id="problemSeed" value="<?php echo $response['problemSeed']; ?>" />
             <input type="hidden" id="problemSource" value="<?php echo $response['problemSource']; ?>" />
-            <iframe id="renderer-problem" srcdoc="<?php echo $response['problemHtml']; ?>" scrolling="yes" width="100%" style="width: 100%; overflow: auto; height: 600px;"></iframe>
+            <iframe id="renderer-problem" <?php echo defined( 'REST_REQUEST' ) && REST_REQUEST ? 'style="pointer-events: none;"' : ''; ?> srcdoc="<?php echo $response['problemHtml']; ?>" scrolling="yes" width="100%"></iframe>
         </div>
         <?php endif; ?>
     </div>
