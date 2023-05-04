@@ -50,13 +50,22 @@ class WWPE_Helpers {
      * Get HTML for the iframe
      */
     function wwpe_get_problem_render_html( $path, $seed ) {
+        // Check if path and seed is provided
         if( empty( $path ) || empty( $seed ) ) 
             return;
 
-        // Get problem content by source file path
-        $problem_content = $this->wwpe_get_problem_content_by_file_path( $path );
+        // Check if the problemSourceURL/sourceFilePath ends with .pg
+        if( ! str_ends_with( $path, '.pg' ) )
+            return;
 
-        if( $problem_content == null) 
+        if(filter_var( $path, FILTER_VALIDATE_URL ) ) {
+            $response = wp_remote_get( $path );
+            $problem_content = wp_remote_retrieve_body( $response );
+        } else {
+            $problem_content = $this->wwpe_get_problem_content_by_file_path( $path );
+        }
+
+        if( $problem_content == null ) 
             return;
 
         // Remove \r from the problem content, because wrong 8-bit array of integers gets generated 
