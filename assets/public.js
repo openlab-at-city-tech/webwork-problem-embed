@@ -8,7 +8,7 @@
     });
   });
 
-  $(document).on( 'click', $('#random-seed-button'), function(e) {
+  $(document).on( 'click', '#random-seed-button', function(e) {
     e.preventDefault();
     
     let problemIframe = $('#renderer-problem')[0];
