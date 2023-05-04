@@ -3,6 +3,14 @@
   
   $(document).on('ready', function() {
     let problemIframe = $('#renderer-problem');
+    iFrameResize(
+      {
+        checkOrigin: false,
+        log: false
+      }, 
+      '#renderer-problem'
+    );
+
     problemIframe.load( function() {
       addFormListener();
     });
