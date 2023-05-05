@@ -9,6 +9,9 @@ class WWPE_Helpers {
 
         add_action( 'wp_ajax_wwpe_get_problem_render_html', array( $this, 'ajax_get_problem_html' ) );
         add_action( 'wp_ajax_nopriv_wwpe_get_problem_render_html', array( $this, 'ajax_get_problem_html' ) );
+
+        add_action( 'wp_ajax_wwpe_get_problem_attribution', array( $this, 'ajax_get_problem_attribution' ) );
+        add_action( 'wp_ajax_nopriv_wwpe_get_problem_attribution', array( $this, 'ajax_get_problem_attribution' ) );
     }
 
     /**
@@ -73,6 +76,41 @@ class WWPE_Helpers {
         } else {
             wp_send_json( $response->get_error_message(), 500 );
         }
+    }
+
+    /**
+     * AJAX method for getting the problem attribution
+     */
+    public function ajax_get_problem_attribution() {
+        if( ! isset( $_POST['problem_source'] ) || empty( $_POST['problem_source'] ) ) {
+            wp_send_json_error( 'Missing problem source', 500 );
+            die();
+        }
+
+        $seed = $_POST['problem_seed'];
+        $source = $_POST['problem_source'];
+        $response = wp_remote_post( $this->endpoint_url, array(
+            'method'    => 'POST',
+            'body'      => array(
+                'problemSource' => $source,
+                'problemSeed'   => $seed,
+                'format'        => 'json',
+                'outputFormat'  => 'single',
+                'includeTags'   => true
+            )
+        ) );
+
+        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+        if( ! is_wp_error( $response ) ) {
+            wp_send_json( array(
+                'success'   => true,
+                'tags'      => isset( $body['tags'] ) ? $body['tags'] : []
+            ) );
+        } else {
+            wp_send_json( $response->get_error_message(), 500 );
+        }
+
     }
 
     /**

@@ -12,6 +12,7 @@
 
     $('#renderer-problem').load( function() {
       addFormListener();
+      loadProblemAttribution();
     });
   });
 
@@ -46,7 +47,7 @@
     })
   });
 
-  // Submit 
+  // Attach listeners on the problem form
   function addFormListener() {
     // Get iframe element
     let problemIframe = $('#renderer-problem')[0];
@@ -94,4 +95,37 @@
       })
     })
   }
+
+  // Load problem attribution
+  function loadProblemAttribution() {
+    // Get problem source
+    let problemSource = $('#problemSource').val();
+
+    // Get problem seed
+    let problemSeed = $('#problemSeed').val();
+
+    // Fetch problem attributions
+    $.ajax({
+      url: wwpe.ajax_url,
+      method: 'POST',
+      dataType: 'json',
+      data: {
+        'action': 'wwpe_get_problem_attribution',
+        'problem_source': problemSource,
+        'problem_seed': problemSeed
+      }
+    }).done( function(response ) {
+      if(response.success) {
+        $('.wwpe-problem-wrapper').append('<table id="wwpe-problem-attribution">');
+        $.each(response.tags, function( index, item) {
+          $('#wwpe-problem-attribution').append(`<tr><td>${index}</td><td>${item}</td></tr>`);
+        });
+        $('.wwpe-problem-wrapper').append('</table>');
+      }
+    }).fail( function(xhr) {
+      let response = xhr.responseJSON;
+      console.log(`Can't generate new problem: ${response.data}`);
+    });
+  }
+
 })(jQuery);
