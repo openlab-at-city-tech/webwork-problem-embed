@@ -87,6 +87,18 @@ function wwpe_block_init() {
 }
 add_action( 'init', 'wwpe_block_init' );
 
+function wwpe_get_template( $template_name, $args = array() ) {
+    if( isset( $args ) && is_array( $args ) )
+        extract( $args );
+
+    $template_file = plugin_dir_path( __FILE__ ) . 'templates/' . $template_name;
+
+    if( ! file_exists( $template_file ) )
+        return;
+
+    include $template_file;
+}
+
 require_once plugin_dir_path( __FILE__ ) . '/includes/options.php';
 require_once plugin_dir_path( __FILE__ ) . '/includes/helpers.php';
-
+require_once plugin_dir_path( __FILE__ ) . '/includes/shortcode.php';

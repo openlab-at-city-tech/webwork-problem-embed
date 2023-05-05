@@ -2,7 +2,6 @@
 (function($) {
   
   $(document).on('ready', function() {
-    let problemIframe = $('#renderer-problem');
     iFrameResize(
       {
         checkOrigin: false,
@@ -11,17 +10,22 @@
       '#renderer-problem'
     );
 
-    problemIframe.load( function() {
+    $('#renderer-problem').load( function() {
       addFormListener();
     });
   });
 
-  $(document).on( 'click', '#random-seed-button', function(e) {
+  // Fetch problem with random seed number
+  $(document).on( 'click', '#wwpe-random-seed', function(e) {
     e.preventDefault();
     
+    // Get iframe element
     let problemIframe = $('#renderer-problem')[0];
+
+    // Get current problem source
     let problemSource = $('#problemSource').val();
 
+    // Fetch HTML
     $.ajax({
       url: wwpe.ajax_url,
       method: 'POST',
@@ -32,25 +36,30 @@
       }
     }).done( function(response ) {
       if(response.success) {
-        $('#problemSeed').val(response.problemSeed);
-        $('#problemSource').val(response.problemSource);
-        problemIframe.srcdoc = response.problemHtml;
+        $('#problemSeed').val(response.seed);
+        $('#problemSource').val(response.source);
+        problemIframe.srcdoc = response.html;
       }
     }).fail( function(xhr) {
       let response = xhr.responseJSON;
-      alert(`Can't generate new problem: ${response.data}`);
+      console.log(`Can't generate new problem: ${response.data}`);
     })
   });
 
+  // Submit 
   function addFormListener() {
+    // Get iframe element
     let problemIframe = $('#renderer-problem')[0];
+
+    // Get iframe's form element
     let problemForm = problemIframe.contentWindow.document.getElementById('problemMainForm');
 
-    if(!problemForm) {
+    if( ! problemForm ) {
       console.log('Could not find problem form!');
       return;
     }
 
+    // Attach submit event on the iframe's form
     $(problemForm).on('submit', function(e) {
       e.preventDefault();
 
@@ -67,6 +76,7 @@
       formData.set(clickedButton.name, clickedButton.value);
       formData.set('problemSource', document.getElementById('problemSource').value);
 
+      // Submit problem answers
       $.ajax({
         url: wwpe.endpoint_url,
         method: 'POST',
@@ -75,8 +85,10 @@
         contentType: false,
         data: formData,
       }).done( function(response) {
+        // Display response in the iframe
         problemIframe.srcdoc = response.renderedHTML;
       }).fail( function(xhr) {
+        // If problem with the submission, remove iframe and display the returned error message
         problemIframe.remove();
         $('.wwpe-problem-content').html(xhr.responseText);
       })
