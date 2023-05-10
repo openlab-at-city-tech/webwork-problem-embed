@@ -2,6 +2,8 @@
 <ruleset name="webwork-problem-embed">
 	<description>A custom set of PHPCS rules for webwork-problem-embed PHP files.</description>
 
+	<file>.</file>
+
 	<!-- Exclude the Composer Vendor directory. -->
 	<exclude-pattern>/vendor/*</exclude-pattern>
 
