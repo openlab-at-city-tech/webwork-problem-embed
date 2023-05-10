@@ -25,7 +25,7 @@ class WWPE_Helpers {
 		if ( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
 			$content = $this->get_problem_by_problem_source_url( $problem_id );
 		} else {
-			$content = $this->get_problem_by_source_file_path( $problem_id );
+			$content = $this->get_problem_by_source_file_path( $problem_id, $seed );
 		}
 
 		if ( ! $content ) {
@@ -133,8 +133,8 @@ class WWPE_Helpers {
 	/**
 	 * Get problem content by source file path.
 	 */
-	private function get_problem_by_source_file_path( $path ) {
-		$url = $this->endpoint_url . '/tap';
+	private function get_problem_by_source_file_path( $path, $seed ) {
+		$url = $this->endpoint_url . '/';
 
 		// Request problem content
 		$response = wp_remote_post(
@@ -143,6 +143,7 @@ class WWPE_Helpers {
 				'method' => 'POST',
 				'body'   => [
 					'sourceFilePath' => $path,
+					'problemSeed'    => $seed,
 				],
 			]
 		);
