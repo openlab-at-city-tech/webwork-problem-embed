@@ -16,7 +16,7 @@ function wwpe_block_init() {
 	$asset_file = require_once plugin_dir_path( __FILE__ ) . '/block/build/index.asset.php';
 	require_once plugin_dir_path( __FILE__ ) . '/block/src/render.php';
 
-	// Register JS script
+	// Register JS script.
 	wp_register_script(
 		'wwpe-block',
 		plugins_url( '/block/build/index.js', __FILE__ ),
@@ -25,7 +25,7 @@ function wwpe_block_init() {
 		true
 	);
 
-	// Register CSS
+	// Register CSS.
 	wp_register_style(
 		'wwpe-block',
 		plugins_url( '/block/build/index.css', __FILE__ ),
@@ -33,7 +33,7 @@ function wwpe_block_init() {
 		$asset_file['version']
 	);
 
-	// Register block
+	// Register block.
 	register_block_type(
 		'wwpe/problem-embed',
 		[
