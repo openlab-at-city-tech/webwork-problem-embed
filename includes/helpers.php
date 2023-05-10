@@ -45,7 +45,7 @@ class WWPE_Helpers {
 			return array(
 				'source' => $source,
 				'seed'   => $seed,
-				'html'   => htmlentities( wp_remote_retrieve_body( $response ) ),
+				'html'   => htmlentities( $content ),
 			);
 		}
 	}
