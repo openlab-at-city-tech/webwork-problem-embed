@@ -1,25 +1,25 @@
 'use strict';
 (function($) {
-  
-  $(document).on('ready', function() {
+
+  $( () => {
     iFrameResize(
       {
         checkOrigin: false,
         log: false
-      }, 
+      },
       '#renderer-problem'
     );
 
-    $('#renderer-problem').load( function() {
+    $('#renderer-problem').on( 'load', function() {
       addFormListener();
       loadProblemAttribution();
     });
-  });
+  } )
 
   // Fetch problem with random seed number
   $(document).on( 'click', '#wwpe-random-seed', function(e) {
     e.preventDefault();
-    
+
     // Get iframe element
     let problemIframe = $('#renderer-problem')[0];
 
