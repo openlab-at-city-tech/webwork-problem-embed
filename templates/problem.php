@@ -29,7 +29,6 @@ if ( ! $response ) {
 	<?php endif; ?>
 	<div class="wwpe-problem-content">
 		<input type="hidden" id="problemId" value="<?php echo esc_attr( $args['problemId'] ); ?>" />
-		<input type="hidden" id="problemSource" value="<?php echo esc_attr( $response['source'] ); ?>" />
 		<input type="hidden" id="problemSeed" value="<?php echo esc_attr( $response['seed'] ); ?>" />
 		<iframe
 			id="renderer-problem"

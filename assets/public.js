@@ -24,7 +24,7 @@
     let problemIframe = $('#renderer-problem')[0];
 
     // Get current problem source
-    let problemSource = $('#problemSource').val();
+    let problemId = $('#problemId').val();
 
     // Fetch HTML
     $.ajax({
@@ -33,12 +33,12 @@
       dataType: 'json',
       data: {
         'action': 'wwpe_get_problem_render_html',
-        'problem_source': problemSource
+        'problem_id': problemId
       }
     }).done( function(response ) {
       if(response.success) {
         $('#problemSeed').val(response.seed);
-        $('#problemSource').val(response.source);
+        $('#problemId').val(response.problem_id);
         problemIframe.srcdoc = response.html;
       }
     }).fail( function(xhr) {
@@ -60,22 +60,39 @@
       return;
     }
 
+    const isValidUrl = urlString=> {
+	  	var urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
+	    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
+	    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
+	    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
+	    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
+	    '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
+	  return !!urlPattern.test(urlString);
+	}
+
     // Attach submit event on the iframe's form
     $(problemForm).on('submit', function(e) {
       e.preventDefault();
 
       let formData = new FormData(this);
       let clickedButton = this.querySelector('.btn-clicked');
+      let problemId = document.getElementById('problemId').value;
+      let problemSeed = parseInt(document.getElementById('problemSeed').value);
 
-      formData.set('permissionLevel', 20);
+      // formData.set('permissionLevel', 20);
       formData.set('includeTags', 1);
       formData.set('showComments', 1);
-      formData.set('sourceFilePath', document.getElementById('problemId').value);
-      formData.set('problemSeed', parseInt(document.getElementById('problemSeed').value));
+      
+      if(isValidUrl(problemId)) {
+        formData.set('problemSourceURL', problemId);
+      } else {
+        formData.set('sourceFilePath', problemId);
+      }
+
+      formData.set('problemSeed', problemSeed);
       formData.set('format', 'json');
       formData.set('outputFormat', 'single');
       formData.set(clickedButton.name, clickedButton.value);
-      formData.set('problemSource', document.getElementById('problemSource').value);
 
       // Submit problem answers
       $.ajax({
@@ -99,7 +116,9 @@
   // Load problem attribution
   function loadProblemAttribution() {
     // Get problem source
-    let problemSource = $('#problemSource').val();
+    let problemId = $('#problemId').val();
+
+    console.log("AIUJSHIUA")
 
     // Get problem seed
     let problemSeed = $('#problemSeed').val();
@@ -111,7 +130,7 @@
       dataType: 'json',
       data: {
         'action': 'wwpe_get_problem_attribution',
-        'problem_source': problemSource,
+        'problem_id': problemId,
         'problem_seed': problemSeed
       }
     }).done( function(response ) {

@@ -22,32 +22,29 @@ class WWPE_Helpers {
 			return;
 		}
 
-		if ( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
-			$content = $this->get_problem_by_problem_source_url( $problem_id );
+		// Construct API request
+		$args = array(
+			'method'	=> 'POST',
+			'body'		=> array(
+				'problemSeed'		=> $seed,
+				'outputFormat'		=> 'single',
+				'format'			=> 'html'
+			)
+		);
+
+		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
+			$args['body']['problemSourceURL'] = $problem_id;
 		} else {
-			$content = $this->get_problem_by_source_file_path( $problem_id, $seed );
+			$args['body']['sourceFilePath'] = $problem_id;
 		}
 
-		if ( ! $content ) {
-			return;
-		}
+		$response = $this->fetch_problem_html( $args );
 
-		// Remove "\r" from the content, because it results with wrong 8-bit integer array
-		$content = str_replace( "\r", '', $content );
-
-		// Generate problem source from the problem content
-		$source = $this->generate_problem_source( $content );
-
-		// Fetch the HTML for the problem
-		$response = $this->fetch_problem_html( $source, $seed );
-
-		if ( ! is_wp_error( $response ) ) {
-			return array(
-				'source' => $source,
-				'seed'   => $seed,
-				'html'   => htmlentities( $content ),
-			);
-		}
+		return array(
+			'problemId'	=> $problem_id,
+			'seed'		=> $seed,
+			'html'		=> htmlentities( $response )
+		);
 	}
 
 	/**
@@ -56,28 +53,41 @@ class WWPE_Helpers {
 	public function ajax_get_problem_html() {
 		// Check if problem source is provided
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! isset( $_POST['problem_source'] ) || empty( $_POST['problem_source'] ) ) {
-			wp_send_json_error( 'Missing problem source.', 500 );
+		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
+			wp_send_json_error( 'Missing Problem Id.', 500 );
 			die();
 		}
 
-		$source = $_POST['problem_source'];
-		$seed   = $this->get_random_problem_seed();
+		$problem_id = $_POST['problem_id'];
+		$seed = $this->get_random_problem_seed();
+
 		// phpcs:enable WordPress.Security.NonceVerification
 
-		$response = $this->fetch_problem_html( $source, $seed );
+		// Construct API request
+		$args = array(
+			'method'	=> 'POST',
+			'body'		=> array(
+				'problemSeed'		=> $seed,
+				'outputFormat'		=> 'single',
+				'format'			=> 'html'
+			)
+		);
 
-		if ( ! is_wp_error( $response ) ) {
-			wp_send_json(
-				array(
-					'success' => true,
-					'source'  => $source,
-					'seed'    => $seed,
-					'html'    => wp_remote_retrieve_body( $response ),
-				)
-			);
+		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
+			$args['body']['problemSourceURL'] = $problem_id;
 		} else {
-			wp_send_json( $response->get_error_message(), 500 );
+			$args['body']['sourceFilePath'] = $problem_id;
+		}
+
+		$response = $this->fetch_problem_html( $args );
+
+		if( ! empty( $response ) ) {
+			wp_send_json( array(
+				'success'	=> true,
+				'problem_id'	=> $problem_id,
+				'seed'			=> $seed,
+				'html'			=> $response
+			) );
 		}
 	}
 
@@ -86,41 +96,43 @@ class WWPE_Helpers {
 	 */
 	public function ajax_get_problem_attribution() {
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! isset( $_POST['problem_source'] ) || empty( $_POST['problem_source'] ) ) {
-			wp_send_json_error( 'Missing problem source', 500 );
+		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
+			wp_send_json_error( 'Missing Problem Id.', 500 );
 			die();
 		}
 
-		$seed     = $_POST['problem_seed'];
-		$source   = $_POST['problem_source'];
-		$response = wp_remote_post(
-			$this->endpoint_url,
-			array(
-				'method' => 'POST',
-				'body'   => array(
-					'problemSource' => $source,
-					'problemSeed'   => $seed,
-					'format'        => 'json',
-					'outputFormat'  => 'single',
-					'includeTags'   => true,
-				),
+		$problem_id = $_POST['problem_id'];
+		$seed = $_POST['problem_seed'];
+
+		// phpcs:enable WordPress.Security.NonceVerification
+		$args = array(
+			'method'	=> 'POST',
+			'body'		=> array(
+				'problemSeed'		=> $seed,
+				'outputFormat'		=> 'single',
+				'format'			=> 'json',
+				'includeTags'		=> true
 			)
 		);
-		// phpcs:enable WordPress.Security.NonceVerification
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! is_wp_error( $response ) ) {
-			wp_send_json(
-				array(
-					'success' => true,
-					'tags'    => isset( $body['tags'] ) ? $body['tags'] : [],
-				)
-			);
+		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
+			$args['body']['problemSourceURL'] = $problem_id;
 		} else {
-			wp_send_json( $response->get_error_message(), 500 );
+			$args['body']['sourceFilePath'] = $problem_id;
 		}
 
+		$response = $this->fetch_problem_html( $args );	
+	
+		if( ! empty( $response ) ) {
+			$response = json_decode( $response, true);
+
+			wp_send_json( array(
+				'success'	=> true,
+				'tags'		=> isset( $response['tags'] ) ? $response['tags'] : []
+			) );
+		}
+
+		wp_send_json( 'Error retrieving problem tags.', 500 );
 	}
 
 	/**
@@ -131,77 +143,12 @@ class WWPE_Helpers {
 	}
 
 	/**
-	 * Get problem content by source file path.
-	 */
-	private function get_problem_by_source_file_path( $path, $seed ) {
-		$url = $this->endpoint_url . '/';
-
-		// Request problem content
-		$response = wp_remote_post(
-			$url,
-			[
-				'method' => 'POST',
-				'body'   => [
-					'sourceFilePath' => $path,
-					'problemSeed'    => $seed,
-				],
-			]
-		);
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === $status_code && ! is_wp_error( $response ) ) {
-			return wp_remote_retrieve_body( $response );
-		}
-	}
-
-	/**
-	 * Get problem content by problem source url.
-	 */
-	private function get_problem_by_problem_source_url( $url ) {
-		$response = wp_remote_get( $url );
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 === $status_code && ! is_wp_error( $response ) ) {
-			return wp_remote_retrieve_body( $response );
-		}
-	}
-
-	/**
-	 * Generate problem source base64
-	 */
-	private function generate_problem_source( $content ) {
-		// Unpack data from a binary string
-		$uint8 = unpack( 'C*', $content );
-
-		$result = '';
-		foreach ( $uint8 as $key => $value ) {
-			$result .= chr( $value );
-		}
-
-		// Encode result string with base64.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		return base64_encode( $content );
-	}
-
-	/**
 	 * Fetch problem render HTML
 	 */
-	private function fetch_problem_html( $source, $seed ) {
-		return wp_remote_post(
-			$this->endpoint_url,
-			[
-				'method' => 'POST',
-				'body'   => [
-					'problemSource' => $source,
-					'problemSeed'   => $seed,
-					'format'        => 'html',
-					'outputFormat'  => 'single',
-				],
-			]
-		);
+	private function fetch_problem_html( $args ) {
+		return wp_remote_post( $this->endpoint_url, $args );
 	}
+
 }
 
 $wwpe_helper = new WWPE_Helpers();
