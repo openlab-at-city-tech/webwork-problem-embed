@@ -1,4 +1,5 @@
-import { ServerSideRender, __experimentalInputControl as InputControl, ToggleControl, __experimentalNumberControl as NumberControl } from '@wordpress/components';
+import { __experimentalInputControl as InputControl, ToggleControl } from '@wordpress/components';
+import ServerSideRender from '@wordpress/server-side-render';
 import { useBlockProps } from "@wordpress/block-editor";
 import { useState, useEffect } from '@wordpress/element';
 
@@ -61,7 +62,7 @@ export default function Edit( { attributes, setAttributes, isSelected }) {
                     block="wwpe/problem-embed"
                     attributes={ attributes }
                 />
-            )}
+            ) }
         </div>
     )
 }
