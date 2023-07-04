@@ -62,13 +62,14 @@
 
     const isValidUrl = urlString=> {
 	  	var urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
-	    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
-	    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
-	    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
-	    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
-	    '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
-	  return !!urlPattern.test(urlString);
-	}
+	      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
+	      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
+	      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
+	      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
+	      '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
+	    
+      return !!urlPattern.test(urlString);
+	  }
 
     // Attach submit event on the iframe's form
     $(problemForm).on('submit', function(e) {
@@ -118,8 +119,6 @@
     // Get problem source
     let problemId = $('#problemId').val();
 
-    console.log("AIUJSHIUA")
-
     // Get problem seed
     let problemSeed = $('#problemSeed').val();
 
@@ -134,7 +133,7 @@
         'problem_seed': problemSeed
       }
     }).done( function(response ) {
-      if(response.success) {
+      if(response.success) {        
         $('.wwpe-problem-wrapper').append('<table id="wwpe-problem-attribution">');
         $.each(response.tags, function( index, item) {
           $('#wwpe-problem-attribution').append(`<tr><td>${index}</td><td>${item}</td></tr>`);

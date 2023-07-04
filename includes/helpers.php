@@ -17,33 +17,14 @@ class WWPE_Helpers {
 	 * Get HTML for the iframe
 	 */
 	public function get_problem_html( $problem_id, $seed ) {
-		// Check if the problemSourceURL/sourceFilePath ends with .pg
-		if ( ! str_ends_with( $problem_id, '.pg' ) ) {
-			return;
-		}
-
-		// Construct API request
-		$args = array(
-			'method'	=> 'POST',
-			'body'		=> array(
-				'problemSeed'		=> $seed,
-				'outputFormat'		=> 'single',
-				'format'			=> 'html'
-			)
-		);
-
-		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
-			$args['body']['problemSourceURL'] = $problem_id;
-		} else {
-			$args['body']['sourceFilePath'] = $problem_id;
-		}
-
-		$response = $this->fetch_problem_html( $args );
+		$response = $this->fetch_problem_html( $problem_id, $seed, 'html' );
 
 		return array(
-			'problemId'	=> $problem_id,
-			'seed'		=> $seed,
-			'html'		=> htmlentities( $response )
+			'success'		=> $response['success'],
+			'html'			=> htmlentities( $response['body'] ),
+			'code'			=> $response['code'],
+			'problem_id'	=> $problem_id,
+			'seed'			=> $seed
 		);
 	}
 
@@ -51,10 +32,10 @@ class WWPE_Helpers {
 	 * AJAX method for getting a new problem html with random seed number.
 	 */
 	public function ajax_get_problem_html() {
-		// Check if problem source is provided
 		// phpcs:disable WordPress.Security.NonceVerification
+		// If Problem Id is not provided, abort and return error
 		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
-			wp_send_json_error( 'Missing Problem Id.', 500 );
+			wp_send_json_error( __( 'Missing Problem Id.', 'wwpe' ), 400 );
 			die();
 		}
 
@@ -62,33 +43,15 @@ class WWPE_Helpers {
 		$seed = $this->get_random_problem_seed();
 
 		// phpcs:enable WordPress.Security.NonceVerification
+		$response = $this->fetch_problem_html( $problem_id, $seed, 'html' );
 
-		// Construct API request
-		$args = array(
-			'method'	=> 'POST',
-			'body'		=> array(
-				'problemSeed'		=> $seed,
-				'outputFormat'		=> 'single',
-				'format'			=> 'html'
-			)
-		);
-
-		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
-			$args['body']['problemSourceURL'] = $problem_id;
-		} else {
-			$args['body']['sourceFilePath'] = $problem_id;
-		}
-
-		$response = $this->fetch_problem_html( $args );
-
-		if( ! empty( $response ) ) {
-			wp_send_json( array(
-				'success'	=> true,
-				'problem_id'	=> $problem_id,
-				'seed'			=> $seed,
-				'html'			=> $response
-			) );
-		}
+		wp_send_json( array(
+			'success'		=> $response['success'],
+			'code'			=> $response['code'],
+			'html'			=> $response['body'],
+			'problem_id'	=> $problem_id,
+			'seed'			=> $seed
+		) );
 	}
 
 	/**
@@ -96,6 +59,7 @@ class WWPE_Helpers {
 	 */
 	public function ajax_get_problem_attribution() {
 		// phpcs:disable WordPress.Security.NonceVerification
+		// If Problem Id is not provided, abort and return error
 		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
 			wp_send_json_error( 'Missing Problem Id.', 500 );
 			die();
@@ -105,34 +69,21 @@ class WWPE_Helpers {
 		$seed = $_POST['problem_seed'];
 
 		// phpcs:enable WordPress.Security.NonceVerification
-		$args = array(
-			'method'	=> 'POST',
-			'body'		=> array(
-				'problemSeed'		=> $seed,
-				'outputFormat'		=> 'single',
-				'format'			=> 'json',
-				'includeTags'		=> true
-			)
-		);
+		$response = $this->fetch_problem_html( $problem_id, $seed, 'json' );
 
-		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
-			$args['body']['problemSourceURL'] = $problem_id;
-		} else {
-			$args['body']['sourceFilePath'] = $problem_id;
+
+		if( ! $response['success'] ) {
+			wp_send_json_error( $response['body'], $response['code'] );
+			die();
 		}
 
-		$response = $this->fetch_problem_html( $args );	
-	
-		if( ! empty( $response ) ) {
-			$response = json_decode( $response, true);
+		$body = json_decode( $response['body'], true );
 
-			wp_send_json( array(
-				'success'	=> true,
-				'tags'		=> isset( $response['tags'] ) ? $response['tags'] : []
-			) );
-		}
-
-		wp_send_json( 'Error retrieving problem tags.', 500 );
+		wp_send_json( array(
+			'success'	=> $response['success'],
+			'code'		=> $response['code'],
+			'tags'		=> isset( $body['tags'] ) ? $body['tags'] : []
+		) );
 	}
 
 	/**
@@ -145,8 +96,48 @@ class WWPE_Helpers {
 	/**
 	 * Fetch problem render HTML
 	 */
-	private function fetch_problem_html( $args ) {
-		return wp_remote_post( $this->endpoint_url, $args );
+	private function fetch_problem_html( $problem_id, $problem_seed, $response_format ) {
+		// Check if the problemSourceURL/sourceFilePath ends with .pg
+		if ( ! str_ends_with( $problem_id, '.pg' ) ) {
+			return array(
+				'success'	=> false,
+				'code'		=> 400,
+				'body'		=> __( 'Invalid Problem Id.', 'wwpe' )
+			);
+		}
+
+		// Construct API request arguments
+		$args = array(
+			'method'	=> 'POST',
+			'body'		=> array(
+				'problemSeed'	=> $problem_seed,
+				'outputFormat'	=> 'single',
+				'format'		=> $response_format,
+				'includeTags'	=> true
+			)
+		);
+
+		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
+			$args['body']['problemSourceURL'] = $problem_id;
+		} else {
+			$args['body']['sourceFilePath'] = $problem_id;
+		}
+
+		$response = wp_remote_post( $this->endpoint_url, $args );
+
+		if( is_wp_error( $response ) ) {
+			return array(
+				'success'	=> false,
+				'code'		=> $response->get_error_code(),
+				'body'		=> $response->get_error_message()
+			);
+		}
+
+		return array(
+			'success'		=> $response['response']['code'] === 200,
+			'code'			=> $response['response']['code'],
+			'body'			=> $response['response']['code'] !== 200 ? $response['response']['message'] : $response['body']
+		);
 	}
 
 }

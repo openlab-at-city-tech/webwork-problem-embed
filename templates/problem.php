@@ -4,8 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! isset( $args['problemId'] ) || empty( $args['problemId'] ) ) {
-	esc_html_e( 'Missing `problemSourceURL` or `sourceFilePath`.', 'wwpe' );
-	return;
+	return __( '<p><strong>WeBWorK Error:</strong> Missing Problem Id.', 'wwpe' );
 }
 
 global $wwpe_helper;
@@ -15,9 +14,8 @@ $allow_reseed = isset( $args['allowReseed'] ) ? (bool) $args['allowReseed'] : fa
 
 $response = $wwpe_helper->get_problem_html( $args['problemId'], $problem_seed );
 
-if ( ! $response ) {
-	esc_html_e( 'Invalid `problemSourceURL` or `sourceFilePath`.', 'wwpe' );
-	return;
+if( ! $response['success'] ) {
+	return printf( __( '<p><strong>WeBWorK Error:</strong> %d - %s', 'wwpe' ), $response['code'], $response['html'] );
 }
 
 ?>
@@ -28,7 +26,7 @@ if ( ! $response ) {
 		</div>
 	<?php endif; ?>
 	<div class="wwpe-problem-content">
-		<input type="hidden" id="problemId" value="<?php echo esc_attr( $args['problemId'] ); ?>" />
+		<input type="hidden" id="problemId" value="<?php echo esc_attr( $response['problem_id'] ); ?>" />
 		<input type="hidden" id="problemSeed" value="<?php echo esc_attr( $response['seed'] ); ?>" />
 		<iframe
 			id="renderer-problem"
