@@ -61,7 +61,7 @@ class WWPE_Helpers {
 		// phpcs:disable WordPress.Security.NonceVerification
 		// If Problem Id is not provided, abort and return error
 		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
-			wp_send_json_error( 'Missing Problem Id.', 500 );
+			wp_send_json_error( __( 'Missing Problem Id.', 'wwpe' ), 400 );
 			die();
 		}
 
