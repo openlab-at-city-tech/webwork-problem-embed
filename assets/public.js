@@ -12,7 +12,10 @@
 
     $('#renderer-problem').on( 'load', function() {
       addFormListener();
-      loadProblemAttribution();
+
+      if( ! $('#wwpe-problem-attribution').length ) {
+        loadProblemAttribution();
+      }
     });
   } )
 
@@ -133,7 +136,7 @@
         'problem_seed': problemSeed
       }
     }).done( function(response ) {
-      if(response.success) {        
+      if(response.success) {
         $('.wwpe-problem-wrapper').append('<table id="wwpe-problem-attribution">');
         $.each(response.tags, function( index, item) {
           $('#wwpe-problem-attribution').append(`<tr><td>${index}</td><td>${item}</td></tr>`);
