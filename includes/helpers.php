@@ -8,23 +8,21 @@ class WWPE_Helpers {
 
 		add_action( 'wp_ajax_wwpe_get_problem_render_html', array( $this, 'ajax_get_problem_html' ) );
 		add_action( 'wp_ajax_nopriv_wwpe_get_problem_render_html', array( $this, 'ajax_get_problem_html' ) );
-
-		add_action( 'wp_ajax_wwpe_get_problem_attribution', array( $this, 'ajax_get_problem_attribution' ) );
-		add_action( 'wp_ajax_nopriv_wwpe_get_problem_attribution', array( $this, 'ajax_get_problem_attribution' ) );
 	}
 
 	/**
 	 * Get HTML for the iframe
 	 */
 	public function get_problem_html( $problem_id, $seed ) {
-		$response = $this->fetch_problem_html( $problem_id, $seed, 'html' );
+		$response = $this->fetch_problem_html( $problem_id, $seed );
 
 		return array(
-			'success'		=> $response['success'],
-			'html'			=> htmlentities( $response['body'] ),
-			'code'			=> $response['code'],
-			'problem_id'	=> $problem_id,
-			'seed'			=> $seed
+			'success'    => $response['success'],
+			'html'       => htmlentities( $response['body'] ),
+			'tags'       => $response['tags'],
+			'code'       => $response['code'],
+			'problem_id' => $problem_id,
+			'seed'       => $seed,
 		);
 	}
 
@@ -40,50 +38,20 @@ class WWPE_Helpers {
 		}
 
 		$problem_id = $_POST['problem_id'];
-		$seed = $this->get_random_problem_seed();
+		$seed       = $this->get_random_problem_seed();
 
 		// phpcs:enable WordPress.Security.NonceVerification
-		$response = $this->fetch_problem_html( $problem_id, $seed, 'html' );
+		$response = $this->fetch_problem_html( $problem_id, $seed );
 
-		wp_send_json( array(
-			'success'		=> $response['success'],
-			'code'			=> $response['code'],
-			'html'			=> $response['body'],
-			'problem_id'	=> $problem_id,
-			'seed'			=> $seed
-		) );
-	}
-
-	/**
-	 * AJAX method for getting the problem attribution
-	 */
-	public function ajax_get_problem_attribution() {
-		// phpcs:disable WordPress.Security.NonceVerification
-		// If Problem Id is not provided, abort and return error
-		if ( ! isset( $_POST['problem_id'] ) || empty( $_POST['problem_id'] ) ) {
-			wp_send_json_error( __( 'Missing Problem Id.', 'wwpe' ), 400 );
-			die();
-		}
-
-		$problem_id = $_POST['problem_id'];
-		$seed = $_POST['problem_seed'];
-
-		// phpcs:enable WordPress.Security.NonceVerification
-		$response = $this->fetch_problem_html( $problem_id, $seed, 'json' );
-
-
-		if( ! $response['success'] ) {
-			wp_send_json_error( $response['body'], $response['code'] );
-			die();
-		}
-
-		$body = json_decode( $response['body'], true );
-
-		wp_send_json( array(
-			'success'	=> $response['success'],
-			'code'		=> $response['code'],
-			'tags'		=> isset( $body['tags'] ) ? $body['tags'] : []
-		) );
+		wp_send_json(
+			array(
+				'success'    => $response['success'],
+				'code'       => $response['code'],
+				'html'       => $response['body'],
+				'problem_id' => $problem_id,
+				'seed'       => $seed,
+			)
+		);
 	}
 
 	/**
@@ -96,28 +64,28 @@ class WWPE_Helpers {
 	/**
 	 * Fetch problem render HTML
 	 */
-	private function fetch_problem_html( $problem_id, $problem_seed, $response_format ) {
+	private function fetch_problem_html( $problem_id, $problem_seed ) {
 		// Check if the problemSourceURL/sourceFilePath ends with .pg
 		if ( ! str_ends_with( $problem_id, '.pg' ) ) {
 			return array(
-				'success'	=> false,
-				'code'		=> 400,
-				'body'		=> __( 'Invalid Problem Id.', 'wwpe' )
+				'success' => false,
+				'code'    => 400,
+				'body'    => __( 'Invalid Problem Id.', 'wwpe' ),
 			);
 		}
 
 		// Construct API request arguments
 		$args = array(
-			'method'	=> 'POST',
-			'body'		=> array(
-				'problemSeed'	=> $problem_seed,
-				'outputFormat'	=> 'single',
-				'format'		=> $response_format,
-				'includeTags'	=> true
-			)
+			'method' => 'POST',
+			'body'   => array(
+				'problemSeed'  => $problem_seed,
+				'outputFormat' => 'single',
+				'format'       => 'json',
+				'includeTags'  => true,
+			),
 		);
 
-		if( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
+		if ( filter_var( $problem_id, FILTER_VALIDATE_URL ) ) {
 			$args['body']['problemSourceURL'] = $problem_id;
 		} else {
 			$args['body']['sourceFilePath'] = $problem_id;
@@ -125,18 +93,21 @@ class WWPE_Helpers {
 
 		$response = wp_remote_post( $this->endpoint_url, $args );
 
-		if( is_wp_error( $response ) ) {
+		if ( is_wp_error( $response ) ) {
 			return array(
-				'success'	=> false,
-				'code'		=> $response->get_error_code(),
-				'body'		=> $response->get_error_message()
+				'success' => false,
+				'code'    => $response->get_error_code(),
+				'body'    => $response->get_error_message(),
 			);
 		}
 
+		$body = json_decode( $response['body'], true );
+
 		return array(
-			'success'		=> $response['response']['code'] === 200,
-			'code'			=> $response['response']['code'],
-			'body'			=> $response['response']['code'] !== 200 ? $response['response']['message'] : $response['body']
+			'success' => 200 === $response['response']['code'],
+			'code'    => $response['response']['code'],
+			'body'    => 200 !== $response['response']['code'] ? $response['response']['message'] : $body['renderedHTML'],
+			'tags'    => isset( $body['tags'] ) ? $body['tags'] : [],
 		);
 	}
 

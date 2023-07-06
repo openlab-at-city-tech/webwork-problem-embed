@@ -14,26 +14,49 @@ $allow_reseed = isset( $args['allowReseed'] ) ? (bool) $args['allowReseed'] : fa
 
 $response = $wwpe_helper->get_problem_html( $args['problemId'], $problem_seed );
 
-if( ! $response['success'] ) {
-	return printf( __( '<p><strong>WeBWorK Error:</strong> %d - %s', 'wwpe' ), $response['code'], $response['html'] );
+if ( ! $response['success'] ) {
+	/* phpcs:disable */
+	/* translators: Fetching problem error message */
+	return printf( __( '<p><strong>WeBWorK Error:</strong> %1$d - %2$s', 'wwpe' ), $response['code'], $response['html'] );
+	/* phpcs:enable */
 }
 
+$block_id = uniqid();
 ?>
-<div class="wwpe-problem-wrapper">
+<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+<div class="wwpe-problem-wrapper" data-id="<?php echo $block_id; ?>">
 	<?php if ( $allow_reseed ) : ?>
 		<div class="wwpe-problem-content-button">
-			<button type="button" id="wwpe-random-seed"><?php esc_html_e( 'Random Seed', 'wwpe' ); ?></button>
+			<button type="button" class="wwpe-random-seed"><?php esc_html_e( 'Random Seed', 'wwpe' ); ?></button>
 		</div>
 	<?php endif; ?>
 	<div class="wwpe-problem-content">
-		<input type="hidden" id="problemId" value="<?php echo esc_attr( $response['problem_id'] ); ?>" />
-		<input type="hidden" id="problemSeed" value="<?php echo esc_attr( $response['seed'] ); ?>" />
+		<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+		<input type="hidden" id="problemId-<?php echo $block_id; ?>" value="<?php echo esc_attr( $response['problem_id'] ); ?>" />
+		<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+		<input type="hidden" id="problemSeed-<?php echo $block_id; ?>" value="<?php echo esc_attr( $response['seed'] ); ?>" />
 		<iframe
-			id="renderer-problem"
+			<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+			data-id="<?php echo $block_id; ?>"
+			class="renderer-problem"
 			<?php echo defined( 'REST_REQUEST' ) && REST_REQUEST ? 'style="pointer-events: none;"' : ''; ?>
 			<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 			srcdoc="<?php echo $response['html']; ?>"
 			width="100%"
 		></iframe>
+		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
+		<table>
+			<?php foreach ( $response['tags'] as $key => $value ) { ?>
+			<tr>
+				<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+				<td><?php echo $key; ?></td>
+				<td>
+					<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
+					<?php echo is_array( $value ) ? join( ', ', $value ) : $value; ?>
+				</td>
+			</tr>
+			<?php } ?>
+		</table>
+		<?php } ?>
 	</div>
 </div>
