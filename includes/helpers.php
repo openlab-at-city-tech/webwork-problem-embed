@@ -91,6 +91,8 @@ class WWPE_Helpers {
 			$args['body']['sourceFilePath'] = $problem_id;
 		}
 
+		$args = apply_filters( 'webwork_problem_embed_renderer_request_args', $args );
+
 		$response = wp_remote_post( $this->endpoint_url, $args );
 
 		if ( is_wp_error( $response ) ) {
