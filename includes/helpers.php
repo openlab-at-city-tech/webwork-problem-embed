@@ -13,8 +13,19 @@ class WWPE_Helpers {
 	/**
 	 * Get HTML for the iframe
 	 */
-	public function get_problem_html( $problem_id, $seed ) {
-		$response = $this->fetch_problem_html( $problem_id, $seed );
+	public function get_problem_html( $problem_id, $seed, $opts = [] ) {
+		$r = array_merge(
+			[
+				'show_correct_answers_button' => false,
+			],
+			$opts
+		);
+
+		$fetch_args = [
+			'show_correct_answers_button' => $r['show_correct_answers_button'],
+		];
+
+		$response = $this->fetch_problem_html( $problem_id, $seed, $fetch_args );
 
 		return array(
 			'success'    => $response['success'],
@@ -64,7 +75,14 @@ class WWPE_Helpers {
 	/**
 	 * Fetch problem render HTML
 	 */
-	private function fetch_problem_html( $problem_id, $problem_seed ) {
+	private function fetch_problem_html( $problem_id, $problem_seed, $opts = [] ) {
+		$r = array_merge(
+			[
+				'show_correct_answers_button' => false,
+			],
+			$opts
+		);
+
 		// Check if the problemSourceURL/sourceFilePath ends with .pg
 		if ( ! str_ends_with( $problem_id, '.pg' ) ) {
 			return array(
@@ -78,10 +96,11 @@ class WWPE_Helpers {
 		$args = array(
 			'method' => 'POST',
 			'body'   => array(
-				'problemSeed'  => $problem_seed,
-				'outputFormat' => 'single',
-				'format'       => 'json',
-				'includeTags'  => true,
+				'problemSeed'              => $problem_seed,
+				'outputFormat'             => 'single',
+				'format'                   => 'json',
+				'includeTags'              => true,
+				'showCorrectAnswersButton' => (bool) $r['show_correct_answers_button'],
 			),
 		);
 

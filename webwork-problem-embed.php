@@ -41,15 +41,19 @@ function wwpe_block_init() {
 			'editor_script'   => 'wwpe-block',
 			'editor_style'    => 'wwpe-block',
 			'attributes'      => array(
-				'problemId'            => [
+				'problemId'                => [
 					'type'    => 'string',
 					'default' => '',
 				],
-				'showRandomSeedButton' => [
+				'showRandomSeedButton'     => [
 					'type'    => 'boolean',
 					'default' => true,
 				],
-				'seed'                 => [
+				'showCorrectAnswersButton' => [
+					'type'    => 'boolean',
+					'default' => false,
+				],
+				'seed'                     => [
 					'type'    => 'string',
 					'default' => '',
 				],

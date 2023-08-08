@@ -12,7 +12,11 @@ global $wwpe_helper;
 $problem_seed = isset( $args['problemSeed'] ) && ! empty( $args['problemSeed'] ) ? intval( $args['problemSeed'] ) : $wwpe_helper->get_random_problem_seed();
 $allow_reseed = isset( $args['allowReseed'] ) ? (bool) $args['allowReseed'] : false;
 
-$response = $wwpe_helper->get_problem_html( $args['problemId'], $problem_seed );
+$fetch_args = [
+	'show_correct_answers_button' => ! empty( $args['showCorrectAnswersButton'] ),
+];
+
+$response = $wwpe_helper->get_problem_html( $args['problemId'], $problem_seed, $fetch_args );
 
 if ( ! $response['success'] ) {
 	/* phpcs:disable */
