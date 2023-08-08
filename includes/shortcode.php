@@ -11,9 +11,10 @@ function wwpe_problem_shortcode( $atts ) {
 	wwpe_get_template(
 		'problem.php',
 		array(
-			'problemId'   => $atts['problemid'] ?? null,
-			'allowReseed' => $atts['allowreseed'] ?? false,
-			'problemSeed' => $atts['problemseed'] ?? null,
+			'problemId'                => $atts['problemid'] ?? null,
+			'allowReseed'              => $atts['allowreseed'] ?? false,
+			'problemSeed'              => $atts['problemseed'] ?? null,
+			'showCorrectAnswersButton' => $atts['showCorrectAnswersButton'] ?? false,
 		)
 	);
 
