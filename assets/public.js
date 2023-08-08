@@ -9,7 +9,7 @@
       },
       '.renderer-problem'
     );
-    
+
     // Add form listeners for every problem
     let iframes = $('.renderer-problem');
     iframes.each( function() {
@@ -32,6 +32,8 @@
     // Get problem id
     let problemId = $(`#problemId-${blockId}`).val();
 
+    const showCorrectAnswersButton = document.getElementById( `show-correct-answers-button-${blockId}` ).value
+
     // Get problem HTML
     $.ajax({
       url: wwpe.ajax_url,
@@ -39,7 +41,8 @@
       dataType: 'json',
       data: {
         'action': 'wwpe_get_problem_render_html',
-        'problem_id': problemId
+        'problem_id': problemId,
+        'show_correct_answers_button': showCorrectAnswersButton
       }
     }).done( function(response) {
       if(response.success) {
@@ -59,7 +62,7 @@
 
     // Get iframe's form element
     let problemForm = iframe.contentWindow.document.getElementById('problemMainForm');
-    
+
     // Abort if form doesn't exist
     if( ! problemForm ) {
       console.log('Could not find problem form!');
@@ -69,7 +72,7 @@
     // Submit problem form
     $(problemForm).on('submit', function(e) {
       e.preventDefault();
-      
+
       let formData = new FormData(this);
       let clickedButton = this.querySelector('.btn-clicked');
       let problemId = $(`#problemId-${blockId}`).val();
@@ -80,7 +83,7 @@
       } else {
         formData.set('sourceFilePath', problemId);
       }
-      
+
       formData.set('problemSeed', problemSeed);
       formData.set('format', 'json');
       formData.set('outputFormat', 'single');

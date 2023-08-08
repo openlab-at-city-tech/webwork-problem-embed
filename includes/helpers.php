@@ -51,8 +51,12 @@ class WWPE_Helpers {
 		$problem_id = $_POST['problem_id'];
 		$seed       = $this->get_random_problem_seed();
 
+		$fetch_args = [
+			'show_correct_answers_button' => ! empty( $_POST['show_correct_answers_button'] ),
+		];
+
 		// phpcs:enable WordPress.Security.NonceVerification
-		$response = $this->fetch_problem_html( $problem_id, $seed );
+		$response = $this->fetch_problem_html( $problem_id, $seed, $fetch_args );
 
 		wp_send_json(
 			array(

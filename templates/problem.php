@@ -12,8 +12,10 @@ global $wwpe_helper;
 $problem_seed = isset( $args['problemSeed'] ) && ! empty( $args['problemSeed'] ) ? intval( $args['problemSeed'] ) : $wwpe_helper->get_random_problem_seed();
 $allow_reseed = isset( $args['allowReseed'] ) ? (bool) $args['allowReseed'] : false;
 
+$show_correct_answers_button = ! empty( $args['showCorrectAnswersButton'] );
+
 $fetch_args = [
-	'show_correct_answers_button' => ! empty( $args['showCorrectAnswersButton'] ),
+	'show_correct_answers_button' => $show_correct_answers_button,
 ];
 
 $response = $wwpe_helper->get_problem_html( $args['problemId'], $problem_seed, $fetch_args );
@@ -34,6 +36,9 @@ $block_id = uniqid();
 			<button type="button" class="wwpe-random-seed"><?php esc_html_e( 'Try Another', 'wwpe' ); ?></button>
 		</div>
 	<?php endif; ?>
+
+	<input type="hidden" id="show-correct-answers-button-<?php echo esc_attr( $block_id ); ?>" value="<?php echo (int) $show_correct_answers_button; ?>" />
+
 	<div class="wwpe-problem-content">
 		<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 		<input type="hidden" id="problemId-<?php echo $block_id; ?>" value="<?php echo esc_attr( $response['problem_id'] ); ?>" />
