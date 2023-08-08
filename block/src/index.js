@@ -11,6 +11,10 @@ registerBlockType( 'wwpe/problem-embed', {
             type: 'string',
             default: '',
         },
+        showCorrectAnswersButton: {
+            type: 'boolean',
+            default: false
+        },
         showRandomSeedButton: {
             type: 'boolean',
             default: true

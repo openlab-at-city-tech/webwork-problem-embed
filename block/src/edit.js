@@ -9,11 +9,13 @@ import './editor.scss';
 export default function Edit( { attributes, setAttributes, isSelected }) {
     const [ problemId, setProblemId ] = useState('');
     const [ showRandomSeedButton, setRandomSeedButton ] = useState(true);
+    const [ showCorrectAnswersButton, setShowCorrectAnswersButton ] = useState(false);
     const [ seedNumber, setSeedNumber ] = useState('');
 
     useEffect(() => {
         setProblemId(attributes.problemId);
         setRandomSeedButton(attributes.showRandomSeedButton);
+        setShowCorrectAnswersButton(attributes.showCorrectAnswersButton);
         setSeedNumber(attributes.seed);
     });
 
@@ -25,6 +27,11 @@ export default function Edit( { attributes, setAttributes, isSelected }) {
     function onChangeShowRandomSeedButton(value) {
         setRandomSeedButton(value);
         setAttributes({ showRandomSeedButton: value });
+    }
+
+    function onChangeShowCorrectAnswersButton( value ) {
+        setShowCorrectAnswersButton( value );
+        setAttributes({ showCorrectAnswersButton: value });
     }
 
     function onChangeSeedNumber(value) {
@@ -56,6 +63,13 @@ export default function Edit( { attributes, setAttributes, isSelected }) {
                             checked={ showRandomSeedButton }
                             onChange={ onChangeShowRandomSeedButton }
 														help={ __( "The 'Try Another' button allows the regeneration of problem using a new, random seed value.", 'wwpe' ) }
+                        />
+                    </div>
+                    <div className="wwpe-editor-field-group">
+                        <ToggleControl
+                            label={ __( "Allow students to request solutions?", 'wwpe' ) }
+                            checked={ showCorrectAnswersButton }
+                            onChange={ onChangeShowCorrectAnswersButton }
                         />
                     </div>
                 </div>

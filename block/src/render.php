@@ -6,9 +6,10 @@ function wwpe_block_render( $atts ) {
 	wwpe_get_template(
 		'problem.php',
 		array(
-			'problemId'   => $atts['problemId'] ?? null,
-			'allowReseed' => $atts['showRandomSeedButton'] ?? false,
-			'problemSeed' => $atts['seed'] ?? null,
+			'problemId'                => $atts['problemId'] ?? null,
+			'allowReseed'              => $atts['showRandomSeedButton'] ?? false,
+			'problemSeed'              => $atts['seed'] ?? null,
+			'showCorrectAnswersButton' => $atts['showCorrectAnswersButton'] ?? false,
 		)
 	);
 
