@@ -27,7 +27,7 @@ $block_id = uniqid();
 <div class="wwpe-problem-wrapper" data-id="<?php echo $block_id; ?>">
 	<?php if ( $allow_reseed ) : ?>
 		<div class="wwpe-problem-content-button">
-			<button type="button" class="wwpe-random-seed"><?php esc_html_e( 'Random Seed', 'wwpe' ); ?></button>
+			<button type="button" class="wwpe-random-seed"><?php esc_html_e( 'Try Another', 'wwpe' ); ?></button>
 		</div>
 	<?php endif; ?>
 	<div class="wwpe-problem-content">

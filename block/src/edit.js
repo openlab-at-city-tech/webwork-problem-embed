@@ -2,6 +2,7 @@ import { __experimentalInputControl as InputControl, ToggleControl } from '@word
 import ServerSideRender from '@wordpress/server-side-render';
 import { useBlockProps } from "@wordpress/block-editor";
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 import './editor.scss';
 
@@ -37,23 +38,24 @@ export default function Edit( { attributes, setAttributes, isSelected }) {
                 <div>
                     <div className="wwpe-editor-field-group">
                         <InputControl
-                            label="Problem Id"
+                            label={ __( "Problem Id", 'wwpe' ) }
                             value={ problemId }
                             onChange={ onChangeProblemId }
                         />
                     </div>
                     <div className="wwpe-editor-field-group">
                         <InputControl
-                            label="Seed"
+                            label={ __( "Seed", 'wwpe' ) }
                             value={ seedNumber }
                             onChange={ onChangeSeedNumber }
                         />
                     </div>
                     <div className="wwpe-editor-field-group">
                         <ToggleControl
-                            label="Display Random Seed Button?"
+                            label={ __( "Display 'Try Another' Button?", 'wwpe' ) }
                             checked={ showRandomSeedButton }
                             onChange={ onChangeShowRandomSeedButton }
+														help={ __( "The 'Try Another' button allows the regeneration of problem using a new, random seed value.", 'wwpe' ) }
                         />
                     </div>
                 </div>
