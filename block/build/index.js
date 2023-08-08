@@ -20,7 +20,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_server_side_render__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_server_side_render__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./editor.scss */ "./block/src/editor.scss");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./editor.scss */ "./block/src/editor.scss");
+
 
 
 
@@ -34,10 +37,12 @@ function Edit({
 }) {
   const [problemId, setProblemId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)('');
   const [showRandomSeedButton, setRandomSeedButton] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(true);
+  const [showCorrectAnswersButton, setShowCorrectAnswersButton] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
   const [seedNumber, setSeedNumber] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)('');
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     setProblemId(attributes.problemId);
     setRandomSeedButton(attributes.showRandomSeedButton);
+    setShowCorrectAnswersButton(attributes.showCorrectAnswersButton);
     setSeedNumber(attributes.seed);
   });
   function onChangeProblemId(value) {
@@ -52,6 +57,12 @@ function Edit({
       showRandomSeedButton: value
     });
   }
+  function onChangeShowCorrectAnswersButton(value) {
+    setShowCorrectAnswersButton(value);
+    setAttributes({
+      showCorrectAnswersButton: value
+    });
+  }
   function onChangeSeedNumber(value) {
     setSeedNumber(value);
     setAttributes({
@@ -63,21 +74,28 @@ function Edit({
   }, isSelected ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "wwpe-editor-field-group"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalInputControl, {
-    label: "Problem Id",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Problem Id", 'wwpe'),
     value: problemId,
     onChange: onChangeProblemId
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "wwpe-editor-field-group"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalInputControl, {
-    label: "Seed",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Seed", 'wwpe'),
     value: seedNumber,
     onChange: onChangeSeedNumber
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "wwpe-editor-field-group"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
-    label: "Display Random Seed Button?",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Display 'Try Another' Button?", 'wwpe'),
     checked: showRandomSeedButton,
-    onChange: onChangeShowRandomSeedButton
+    onChange: onChangeShowRandomSeedButton,
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("The 'Try Another' button allows the regeneration of problem using a new, random seed value.", 'wwpe')
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "wwpe-editor-field-group"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Allow students to request solutions?", 'wwpe'),
+    checked: showCorrectAnswersButton,
+    onChange: onChangeShowCorrectAnswersButton
   }))) : (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)((_wordpress_server_side_render__WEBPACK_IMPORTED_MODULE_2___default()), {
     block: "wwpe/problem-embed",
     attributes: attributes
@@ -135,6 +153,16 @@ module.exports = window["wp"]["components"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["element"];
+
+/***/ }),
+
+/***/ "@wordpress/i18n":
+/*!******************************!*\
+  !*** external ["wp","i18n"] ***!
+  \******************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["i18n"];
 
 /***/ }),
 
@@ -236,6 +264,10 @@ __webpack_require__.r(__webpack_exports__);
     problemId: {
       type: 'string',
       default: ''
+    },
+    showCorrectAnswersButton: {
+      type: 'boolean',
+      default: false
     },
     showRandomSeedButton: {
       type: 'boolean',
