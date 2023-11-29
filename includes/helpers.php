@@ -105,6 +105,7 @@ class WWPE_Helpers {
 				'format'                   => 'json',
 				'includeTags'              => true,
 				'showCorrectAnswersButton' => (bool) $r['show_correct_answers_button'],
+				'userID'                   => $this->get_user_id(),
 			),
 		);
 
@@ -136,6 +137,22 @@ class WWPE_Helpers {
 		);
 	}
 
+	/**
+	 * Get an ID fo the current user, to pass to the problem renderer.
+	 *
+	 * Renderer expects an email address.
+	 *
+	 * @return string
+	 */
+	private function get_user_id() {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+
+		$user = wp_get_current_user();
+
+		return $user->user_email;
+	}
 }
 
 $wwpe_helper = new WWPE_Helpers();
