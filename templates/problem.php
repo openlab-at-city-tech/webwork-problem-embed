@@ -30,7 +30,7 @@ if ( ! $response['success'] ) {
 $block_id = uniqid();
 ?>
 <?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
-<div class="wwpe-problem-wrapper" data-id="<?php echo $block_id; ?>">
+<div class="wwpe-problem-wrapper module-problem-wrapper" data-id="<?php echo $block_id; ?>">
 	<?php if ( $allow_reseed ) : ?>
 		<div class="wwpe-problem-content-button">
 			<button type="button" class="wwpe-random-seed"><?php esc_html_e( 'Try Another', 'wwpe' ); ?></button>
