@@ -129,11 +129,21 @@ class WWPE_Helpers {
 
 		$body = json_decode( $response['body'], true );
 
+		$allowed_tags = [ 'Author', 'Institution' ];
+		$tags         = [];
+		if ( isset( $body['tags'] ) && is_array( $body['tags'] ) ) {
+			foreach ( $body['tags'] as $tag_name => $tag_value ) {
+				if ( in_array( $tag_name, $allowed_tags, true ) ) {
+					$tags[ $tag_name ] = $tag_value;
+				}
+			}
+		}
+
 		return array(
 			'success' => 200 === $response['response']['code'],
 			'code'    => $response['response']['code'],
 			'body'    => 200 !== $response['response']['code'] ? $response['response']['message'] : $body['renderedHTML'],
-			'tags'    => isset( $body['tags'] ) ? $body['tags'] : [],
+			'tags'    => $tags,
 		);
 	}
 
