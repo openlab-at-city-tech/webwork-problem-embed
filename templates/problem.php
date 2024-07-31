@@ -54,14 +54,15 @@ $block_id = uniqid();
 			width="100%"
 		></iframe>
 		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
-		<table>
+		<table class="wwpe-tags">
 			<?php foreach ( $response['tags'] as $key => $value ) { ?>
 			<tr>
-				<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
-				<td><?php echo $key; ?></td>
+				<th scope="row">
+					<?php echo esc_html( $key ); ?>
+				</th>
+
 				<td>
-					<?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
-					<?php echo is_array( $value ) ? join( ', ', $value ) : $value; ?>
+					<?php echo esc_html( is_array( $value ) ? join( ', ', $value ) : $value ); ?>
 				</td>
 			</tr>
 			<?php } ?>

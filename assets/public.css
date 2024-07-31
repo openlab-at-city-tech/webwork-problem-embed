@@ -17,3 +17,8 @@
     color: #fff;
     cursor: pointer;
 }
+
+.wwpe-tags th {
+	text-align: left;
+	padding-right: 20px;
+}
