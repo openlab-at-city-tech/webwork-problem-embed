@@ -55,17 +55,19 @@ $block_id = uniqid();
 		></iframe>
 		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
 		<table class="wwpe-tags">
-			<?php foreach ( $response['tags'] as $key => $value ) { ?>
-			<tr>
-				<th scope="row">
-					<?php echo esc_html( $key ); ?>
-				</th>
+			<?php foreach ( $response['tags'] as $key => $value ) : ?>
+				<?php if ( ! empty( $value ) ) : ?>
+					<tr>
+						<th scope="row">
+							<?php echo esc_html( $key ); ?>
+						</th>
 
-				<td>
-					<?php echo esc_html( is_array( $value ) ? join( ', ', $value ) : $value ); ?>
-				</td>
-			</tr>
-			<?php } ?>
+						<td>
+							<?php echo esc_html( is_array( $value ) ? join( ', ', $value ) : $value ); ?>
+						</td>
+					</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
 		</table>
 		<?php } ?>
 	</div>
