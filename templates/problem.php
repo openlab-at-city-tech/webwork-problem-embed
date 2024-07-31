@@ -53,22 +53,27 @@ $block_id = uniqid();
 			srcdoc="<?php echo $response['html']; ?>"
 			width="100%"
 		></iframe>
-		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
-		<table class="wwpe-tags">
-			<?php foreach ( $response['tags'] as $key => $value ) : ?>
-				<?php if ( ! empty( $value ) ) : ?>
-					<tr>
-						<th scope="row">
-							<?php echo esc_html( $key ); ?>
-						</th>
 
-						<td>
-							<?php echo esc_html( is_array( $value ) ? join( ', ', $value ) : $value ); ?>
-						</td>
-					</tr>
-				<?php endif; ?>
-			<?php endforeach; ?>
-		</table>
+		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
+			<div class="wwpe-tags-wrapper">
+				<div id="wwpe-tags-toggle-<?php echo esc_attr( $block_id ); ?>" class="wwpe-tags-toggle"><?php esc_html_e( 'Problem Info', 'webwork-problem-embed' ); ?></div>
+
+				<table class="wwpe-tags">
+					<?php foreach ( $response['tags'] as $key => $value ) : ?>
+						<?php if ( ! empty( $value ) ) : ?>
+							<tr>
+								<th scope="row">
+									<?php echo esc_html( $key ); ?>
+								</th>
+
+								<td>
+									<?php echo esc_html( is_array( $value ) ? join( ', ', $value ) : $value ); ?>
+								</td>
+							</tr>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</table>
+			</div>
 		<?php } ?>
 	</div>
 </div>

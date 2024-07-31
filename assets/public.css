@@ -22,3 +22,24 @@
 	text-align: left;
 	padding-right: 20px;
 }
+
+.wwpe-tags-wrapper.toggle-open .wwpe-tags-toggle,
+.wwpe-tags-wrapper.toggle-closed .wwpe-tags-toggle {
+	background-position: left center;
+	background-repeat: no-repeat;
+	background-size: 12px 12px;
+	cursor: pointer;
+	padding-left: 20px;
+}
+
+.wwpe-tags-wrapper.toggle-closed .wwpe-tags {
+	display: none;
+}
+
+.wwpe-tags-wrapper.toggle-closed .wwpe-tags-toggle {
+	background-image: url('./img/arrow-right.png');
+}
+
+.wwpe-tags-wrapper.toggle-open .wwpe-tags-toggle {
+	background-image: url('./img/arrow-down.png');
+}

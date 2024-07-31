@@ -19,6 +19,16 @@
     })
   } )
 
+	$(document).on( 'ready', () => {
+		$( '.wwpe-tags-wrapper' ).addClass( 'toggle-closed' ).on( 'click', '.wwpe-tags-toggle', function() {
+			if ( $( this ).closest( '.wwpe-tags-wrapper' ).hasClass( 'toggle-closed' ) ) {
+				$( this ).closest( '.wwpe-tags-wrapper' ).removeClass( 'toggle-closed' ).addClass( 'toggle-open' );
+			} else {
+				$( this ).closest( '.wwpe-tags-wrapper' ).addClass( 'toggle-closed' ).removeClass( 'toggle-open' );
+			}
+		} );
+	} );
+
   // Get problem with random seed number
   $(document).on( 'click', '.wwpe-random-seed', function(e) {
     e.preventDefault();
