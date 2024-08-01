@@ -27,6 +27,16 @@ if ( ! $response['success'] ) {
 	/* phpcs:enable */
 }
 
+$has_non_empty_tags = false;
+if ( isset( $response['tags'] ) && is_array( $response['tags'] ) ) {
+	foreach ( $response['tags'] as $key => $value ) {
+		if ( ! empty( $value ) ) {
+			$has_non_empty_tags = true;
+			break;
+		}
+	}
+}
+
 $block_id = uniqid();
 ?>
 <?php /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
@@ -54,7 +64,7 @@ $block_id = uniqid();
 			width="100%"
 		></iframe>
 
-		<?php if ( isset( $response['tags'] ) && ! empty( $response['tags'] ) ) { ?>
+		<?php if ( $has_non_empty_tags ) { ?>
 			<div class="wwpe-tags-wrapper">
 				<div id="wwpe-tags-toggle-<?php echo esc_attr( $block_id ); ?>" class="wwpe-tags-toggle"><?php esc_html_e( 'Problem Info', 'webwork-problem-embed' ); ?></div>
 
