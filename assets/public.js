@@ -5,6 +5,7 @@
     iFrameResize(
       {
         checkOrigin: false,
+        scrolling: true,
         log: false
       },
       '.renderer-problem'
