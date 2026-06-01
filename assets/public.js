@@ -58,7 +58,7 @@
     }).done( function(response) {
       if(response.success) {
         $(`#problemSeed-${blockId}`).val(response.seed);
-        iframe.srcdoc = response.html;
+        iframe.srcdoc = makeUrlsAbsolute(response.html);
       }
     }).fail( function(xhr) {
       let response = xhr.responseJSON;
@@ -111,7 +111,7 @@
         data: formData
       }).done( function(response) {
         // Display response in the iframe
-        iframe.srcdoc = response.renderedHTML;
+        iframe.srcdoc = makeUrlsAbsolute(response.renderedHTML);
       }).fail( function(xhr) {
         // On fail, remove the iframe and display the error message
         iframe.remove();
@@ -119,6 +119,20 @@
       })
 
     });
+  }
+
+  // Rewrite relative href/src attributes to absolute URLs using the <base href> in the HTML.
+  // Mirrors the PHP make_urls_absolute() in helpers.php for the client-side form submission
+  // path, which posts directly to the renderer and sets srcdoc without PHP processing.
+  function makeUrlsAbsolute(html) {
+    const baseMatch = html.match(/<base[^>]+href=["']([^"']+)["'][^>]*>/i);
+    if (!baseMatch) return html;
+
+    const baseUrl = baseMatch[1].replace(/\/$/, '') + '/';
+    return html.replace(
+      /\b(href|src)=(["'])((?!https?:\/\/|\/\/|\/|#|data:|mailto:|javascript:)[^"'"]+)\2/gi,
+      (match, attr, quote, path) => `${attr}=${quote}${baseUrl}${path}${quote}`
+    );
   }
 
   // Validate URL

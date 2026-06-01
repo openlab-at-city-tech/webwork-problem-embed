@@ -139,11 +139,42 @@ class WWPE_Helpers {
 			}
 		}
 
+		$rendered_body = 200 !== $response['response']['code']
+			? $response['response']['message']
+			: $this->make_urls_absolute( $body['renderedHTML'] );
+
 		return array(
 			'success' => 200 === $response['response']['code'],
 			'code'    => $response['response']['code'],
-			'body'    => 200 !== $response['response']['code'] ? $response['response']['message'] : $body['renderedHTML'],
+			'body'    => $rendered_body,
 			'tags'    => $tags,
+		);
+	}
+
+	/**
+	 * Rewrite relative href/src attributes in renderer HTML to absolute URLs.
+	 *
+	 * The renderer returns a <base href="..."> tag, but WordPress (and plugins) scan
+	 * the raw HTML of a page and resolve relative-looking attributes against the WP
+	 * site URL, causing 404 floods. Rewriting to absolute URLs prevents this entirely
+	 * and makes the srcdoc self-contained regardless of <base href> handling.
+	 *
+	 * @param string $html The rendered HTML from the renderer.
+	 * @return string HTML with relative href/src attributes rewritten to absolute URLs.
+	 */
+	private function make_urls_absolute( $html ) {
+		if ( ! preg_match( '/<base[^>]+href=["\']([^"\']+)["\'][^>]*>/i', $html, $matches ) ) {
+			return $html;
+		}
+
+		$base_url = rtrim( $matches[1], '/' ) . '/';
+
+		return preg_replace_callback(
+			'/\b(href|src)=(["\'])((?!https?:\/\/|\/\/|\/|#|data:|mailto:|javascript:)[^"\']+)\2/i',
+			function ( $matches ) use ( $base_url ) {
+				return $matches[1] . '=' . $matches[2] . $base_url . $matches[3] . $matches[2];
+			},
+			$html
 		);
 	}
 
